@@ -108,7 +108,6 @@ public class BasePacketWorldReader extends PacketListenerAbstract {
     }
 
     public void handleMapChunkBulk(GrimPlayer player, PacketSendEvent event) {
-        // Only exists in 1.7 and 1.8
         WrapperPlayServerChunkDataBulk chunkData = new WrapperPlayServerChunkDataBulk(event);
         for (int i = 0; i < chunkData.getChunks().length; i++) {
             addChunkToCache(event, player, chunkData.getChunks()[i], true, chunkData.getX()[i], chunkData.getZ()[i]);
@@ -116,10 +115,15 @@ public class BasePacketWorldReader extends PacketListenerAbstract {
     }
 
     public void handleMapChunk(GrimPlayer player, PacketSendEvent event) {
-        WrapperPlayServerChunkData chunkData = new WrapperPlayServerChunkData(event);
+        WrapperPlayServerChunkData chunkData;
+        if (event.getPacket() instanceof WrapperPlayServerChunkData) {
+            chunkData = (WrapperPlayServerChunkData) event.getPacket();
+        } else {
+            chunkData = new WrapperPlayServerChunkData(event);
+        }
         addChunkToCache(event, player, chunkData.getColumn().getChunks(), chunkData.getColumn().isFullChunk(), chunkData.getColumn().getX(), chunkData.getColumn().getZ());
         event.setLastUsedWrapper(null);
-    }
+}
 
     public void addChunkToCache(PacketSendEvent event, GrimPlayer player, BaseChunk[] chunks, boolean isGroundUp, int chunkX, int chunkZ) {
         double chunkCenterX = (chunkX << 4) + 8;
